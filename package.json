@@ -1,0 +1,16 @@
+{
+  "name": "logger-browser",
+  "version": "1.0.0",
+  "description": "A mini package to manage your logs",
+  "main": "logger-browser.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "logger",
+    "loglevel",
+    "console"
+  ],
+  "author": "S-STALWART-S",
+  "license": "MIT"
+}
