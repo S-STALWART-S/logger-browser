@@ -16,6 +16,13 @@ const nodeColor = {
 	warn: "\x1b[35m",
 };
 
+const getLevels = () => ({
+	debug: "debug",
+	error: "error",
+	info: "info",
+	warn: "warn",
+});
+
 class LoggerBrowser {
 	constructor(level) {
 		if (this.#browserDetector()) {
@@ -24,12 +31,7 @@ class LoggerBrowser {
 			this.#colors = nodeColor;
 		}
 		this.#level = level;
-		this.levels = {
-			debug: "debug",
-			error: "error",
-			info: "info",
-			warn: "warn",
-		};
+		this.levels = getLevels();
 	}
 	#colors = {
 		debug: "",
@@ -39,10 +41,11 @@ class LoggerBrowser {
 		start: "",
 		warn: "",
 	};
+
 	#level = "";
 	#levels = ["error", "warn", "info", "debug"];
 	#messageFormat = "[%t] [%l] - [%m]";
-
+	static levels = getLevels();
 	#browserDetector() {
 		return (
 			typeof process === "undefined" ||
@@ -59,8 +62,8 @@ class LoggerBrowser {
 		this.setLevel("");
 	}
 
-	#canSend(level, message) {
-		if (!this.#level || !message || !level) return false;
+	#canSend(level) {
+		if (!this.#level || !level) return false;
 		if (!this.levels[level]) return false;
 		return this.#levels.indexOf(this.#level) >= this.#levels.indexOf(level);
 	}
@@ -70,8 +73,8 @@ class LoggerBrowser {
 		return this;
 	}
 
-	#format(message, level) {
-		if (typeof message === "object") return [message];
+	#format(level, ...messages) {
+		if (messages.some((m) => typeof m === "object")) return messages;
 
 		const uppercaseLevel = level.toUpperCase();
 		const date = new Date().toISOString();
@@ -80,7 +83,7 @@ class LoggerBrowser {
 		const messageBase = this.#messageFormat
 			.replace("%t", date)
 			.replace("%l", uppercaseLevel)
-			.replace("%m", message);
+			.replace("%m", messages.join(" "));
 
 		if (this.#browserDetector()) {
 			return [this.#colors.start + messageBase, color];
@@ -90,44 +93,44 @@ class LoggerBrowser {
 	}
 
 	/**
-	 * @param message {string}
+	 * @param messages
 	 */
-	warn(message) {
-		this.log(this.levels.warn, message, this.#colors.warn);
+	warn(...messages) {
+		this.log(this.levels.warn, ...messages);
 	}
 
 	/**
-	 * @param message {string}
+	 * @param messages
 	 */
-	info(message) {
-		this.log(this.levels.info, message, this.#colors.info);
+	info(...messages) {
+		this.log(this.levels.info, ...messages);
 	}
 
 	/**
-	 * @param message {string}
+	 * @param messages
 	 */
-	debug(message) {
-		this.log(this.levels.debug, message, this.#colors.debug);
+	debug(...messages) {
+		this.log(this.levels.debug, ...messages);
 	}
 
 	/**
-	 * @param message {string}
+	 * @param messages
 	 */
-	error(message) {
-		this.log(this.levels.error, message, this.#colors.error);
+	error(...messages) {
+		this.log(this.levels.error, ...messages);
 	}
 
 	/**
 	 * @param level {string}
-	 * @param message {string}
+	 * @param messages
 	 * @param color {string}
 	 */
-	log(level, message) {
-		if (!this.#canSend(level, message)) {
+	log(level, ...messages) {
+		if (!this.#canSend(level)) {
 			return;
 		}
 
-		const formattedMessage = this.#format(message, level);
+		const formattedMessage = this.#format(level, ...messages);
 
 		console.log(...formattedMessage);
 	}
