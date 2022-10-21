@@ -1,6 +1,6 @@
 {
   "name": "logger-browser",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A mini package to manage your logs",
   "main": "logger-browser.js",
   "scripts": {
